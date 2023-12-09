@@ -1,23 +1,24 @@
-import 'package:auto_car/pages/cadastro/form_cadastro.dart';
+import 'package:auto_car/pages/login_main/login/form_login.dart';
 import 'package:flutter/material.dart';
 
-class CadastroPage extends StatefulWidget {
-  const CadastroPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<CadastroPage> createState() => _CadastroPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _CadastroPageState extends State<CadastroPage> {
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF003BDF),
-      body: Center(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: SizedBox(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(top: 55),
+        child: Center(
+          child: Stack(
+            children: [
+              SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -36,7 +37,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Cadastrar',
+                          'Acesso',
                           style: TextStyle(fontSize: 25, color: Colors.white),
                         ),
                       ),
@@ -47,7 +48,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Insira seu e-mail e senha para criar seu cadastro. ',
+                          'Insira seu e-mail e senha para fazer o login.',
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w400,
@@ -55,12 +56,12 @@ class _CadastroPageState extends State<CadastroPage> {
                         ),
                       ),
                     ),
-                    const FormCadastro(),
+                    const FormLogin(),
                   ],
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

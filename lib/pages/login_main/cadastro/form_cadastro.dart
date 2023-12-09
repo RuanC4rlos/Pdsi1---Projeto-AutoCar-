@@ -77,7 +77,7 @@ class _FormCadastroState extends State<FormCadastro>
 
     setState(() => _isLoading = false);
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, AppRoutes.PROUCT_CAR);
+    Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
   }
 
   @override

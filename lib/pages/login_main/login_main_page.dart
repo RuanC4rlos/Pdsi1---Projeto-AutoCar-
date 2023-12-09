@@ -1,5 +1,5 @@
-import 'package:auto_car/pages/cadastro/cadastro_page.dart';
-import 'package:auto_car/pages/login/login_page.dart';
+import 'package:auto_car/pages/login_main/cadastro/cadastro_page.dart';
+import 'package:auto_car/pages/login_main/login/login_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginMainPage extends StatefulWidget {

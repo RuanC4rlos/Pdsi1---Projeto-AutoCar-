@@ -1,8 +1,9 @@
 import 'package:auto_car/models/auth.dart';
-import 'package:auto_car/pages/cadastro/cadastro_page.dart';
-import 'package:auto_car/pages/login/splash_screen.dart';
-import 'package:auto_car/pages/login_main_page.dart';
-import 'package:auto_car/pages/login/login_page.dart';
+import 'package:auto_car/models/car_list.dart';
+import 'package:auto_car/pages/login_main/cadastro/cadastro_page.dart';
+import 'package:auto_car/pages/login_main/login/splash_screen.dart';
+import 'package:auto_car/pages/login_main/login_main_page.dart';
+import 'package:auto_car/pages/login_main/login/login_page.dart';
 import 'package:auto_car/pages/produtos_car_screen.dart';
 import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => Auth(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CarList(),
         ),
       ],
       child: MaterialApp(

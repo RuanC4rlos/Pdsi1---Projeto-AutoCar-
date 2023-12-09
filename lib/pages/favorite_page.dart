@@ -1,19 +1,15 @@
 // ignore_for_file: depend_on_referenced_packages
-
-import 'package:auto_car/pages/favorite_page.dart';
-import 'package:flutter/material.dart';
-import 'package:auto_car/components/app_drawer.dart';
 import 'package:auto_car/components/product_item.dart';
-import 'package:auto_car/components/search.dart';
-import 'package:auto_car/data/dummy_data.dart';
-import 'package:auto_car/models/car.dart';
+import 'package:auto_car/models/car_list.dart';
+import 'package:auto_car/pages/produtos_car_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ProductCarPage extends StatefulWidget {
-  const ProductCarPage({Key? key}) : super(key: key);
+class FavoritePage extends StatefulWidget {
+  const FavoritePage({Key? key}) : super(key: key);
 
   @override
-  State<ProductCarPage> createState() => _ProductCarPageState();
+  State<FavoritePage> createState() => _FavoritePageState();
 }
 
 class NavigationItem {
@@ -22,9 +18,7 @@ class NavigationItem {
   NavigationItem(this.iconData);
 }
 
-class _ProductCarPageState extends State<ProductCarPage> {
-  final List<Car> loadedProducts = dummyProducts;
-
+class _FavoritePageState extends State<FavoritePage> {
   List<NavigationItem> getNavigationItemList() {
     return <NavigationItem>[
       NavigationItem(Icons.home),
@@ -41,46 +35,29 @@ class _ProductCarPageState extends State<ProductCarPage> {
   void initState() {
     super.initState();
     setState(() {
-      selectedItem = navigationItems[0];
+      selectedItem = navigationItems[2];
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final carList = Provider.of<CarList>(context, listen: false);
+    final favoriteItems =
+        carList.items.where((carItem) => carItem.isFavorite).toList();
+
     return Scaffold(
-      appBar: AppBar(
-        title: Container(
-          padding: const EdgeInsets.only(left: 45),
-          child: Image.asset(
-            'assets/images/logo.png',
-            height: 35,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF003BDF),
-        //Theme.of(context).colorScheme.secondary,
-      ),
-      body: Column(
-        children: [
-          // Adicionando o componente Search
-          const Search(),
-          // Adicionando a lista de produtos
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(10),
-                itemCount: loadedProducts.length,
-                itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-                  value: loadedProducts[i],
-                  child: const ProductItem(),
-                ),
+      appBar: AppBar(title: const Text('Favoritos')),
+      body: favoriteItems.isEmpty
+          ? const Center(
+              child: Text('Nenhum item foi adicionado aos favoritos.'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: favoriteItems.length,
+              itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                value: favoriteItems[i],
+                child: const ProductItem(),
               ),
             ),
-          ),
-        ],
-      ),
-      drawer: const AppDrawer(),
       bottomNavigationBar: Container(
         height: 70,
         decoration: BoxDecoration(

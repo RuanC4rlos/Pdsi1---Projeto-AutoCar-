@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
-import '../../exceptions/auth_exception.dart';
-import '../../models/auth.dart';
+import '../../../exceptions/auth_exception.dart';
+import '../../../models/auth.dart';
 
 class FormLogin extends StatefulWidget {
   const FormLogin({Key? key}) : super(key: key);
@@ -32,8 +32,6 @@ class _FormLoginState extends State<FormLogin>
   AnimationController? _controller;
   Animation<double>? _opacityAnimation;
   Animation<Offset>? _slideAnimation;
-
-  final bool _isLogin = true;
 
   @override
   void initState() {
@@ -93,28 +91,25 @@ class _FormLoginState extends State<FormLogin>
     setState(() => _isLoading = true);
 
     _formKey.currentState?.save();
-    //Auth auth = Provider.of(context, listen: false);
 
     Auth auth = Provider.of<Auth>(context, listen: false);
 
     try {
-      if (_isLogin) {
-        // Login
-        await auth.login(
-          _authData['email']!,
-          _authData['password']!,
-        );
-      }
+      // Login
+      await auth.login(
+        _authData['email']!,
+        _authData['password']!,
+      );
+      // ignore: use_build_context_synchronously
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const ProductCarPage()));
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
     } catch (error) {
-      _showErrorDialog('Ocorreu um erro inesperado!');
+      _showErrorDialog('Email ou senha incorretos!');
     }
 
     setState(() => _isLoading = false);
-    // ignore: use_build_context_synchronously
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ProductCarPage()));
   }
 
   @override
