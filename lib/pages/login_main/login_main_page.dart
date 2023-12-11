@@ -54,7 +54,7 @@ class _LoginMainPageState extends State<LoginMainPage> {
                 children: [
                   Container(
                     width: containerWidth * 1,
-                    height: containerHeight * 0.4534,
+                    height: containerHeight * 0.4449,
                     decoration: const BoxDecoration(
                       color: Color(0xFF003BDF),
                       borderRadius: BorderRadius.only(

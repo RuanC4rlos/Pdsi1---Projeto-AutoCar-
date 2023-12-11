@@ -1,11 +1,24 @@
-import 'package:auto_car/pages/favorite_page.dart';
+// ignore_for_file: depend_on_referenced_packages
+
+import 'package:auto_car/components/badgee.dart';
+import 'package:auto_car/models/carrinho.dart';
 import 'package:auto_car/pages/produtos_car_screen.dart';
+import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NavigationItem {
   IconData iconData;
 
   NavigationItem(this.iconData);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is NavigationItem && other.iconData == iconData;
+  }
+
+  @override
+  int get hashCode => iconData.hashCode;
 }
 
 // ignore: must_be_immutable
@@ -50,6 +63,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   }
 
   List<Widget> buildNavigationItems() {
+    //return navigationItems.map(buildNavigationItem).toList();
     List<Widget> list = [];
     for (var navigationItem in navigationItems) {
       list.add(buildNavigationItem(navigationItem));
@@ -68,33 +82,34 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         } else if (item.iconData == Icons.search) {
           await Navigator.pushNamed(context, '/search');
         } else if (item.iconData == Icons.favorite) {
-          await Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const FavoritePage()),
-          );
+          await Navigator.of(context).pushReplacementNamed(AppRoutes.FAVORITES);
         } else if (item.iconData == Icons.shopping_cart) {
-          await Navigator.pushNamed(context, '/cart');
+          await Navigator.of(context).pushReplacementNamed(AppRoutes.CART);
         }
-        setState(() {
-          widget.selectedItem = item;
-        });
+
+        Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0xFFF1EBFF),
+          ),
+        );
       },
       child: SizedBox(
         width: 50,
         child: Stack(
           children: <Widget>[
-            widget.selectedItem == item
-                ? Center(
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFF1EBFF),
-                      ),
-                    ),
-                  )
-                : Container(),
+            Center(
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.selectedItem == item
+                      ? const Color.fromARGB(255, 210, 210, 221)
+                      : Colors.transparent,
+                ),
+              ),
+            ),
             Center(
               child: Icon(
                 item.iconData,
@@ -103,7 +118,32 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                     : Colors.grey[400],
                 size: 24,
               ),
-            )
+            ),
+            Consumer<Carrinho>(
+                builder: (ctx, cart, child) =>
+                    cart.itemsCount > 0 && item.iconData == Icons.shopping_cart
+                        ? Badgee(
+                            value: cart.itemsCount.toString(),
+                            child: Center(
+                              child: Icon(
+                                item.iconData,
+                                color: widget.selectedItem == item
+                                    ? const Color(0xFF003BDF)
+                                    : Colors.grey[400],
+                                size: 24,
+                              ),
+                            ),
+                          )
+                        : Container()),
+            Center(
+              child: Icon(
+                item.iconData,
+                color: item == widget.selectedItem
+                    ? const Color(0xFF003BDF)
+                    : Colors.grey[400],
+                size: 24,
+              ),
+            ),
           ],
         ),
       ),

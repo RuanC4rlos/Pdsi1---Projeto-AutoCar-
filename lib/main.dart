@@ -1,5 +1,8 @@
 import 'package:auto_car/models/auth.dart';
 import 'package:auto_car/models/car_list.dart';
+import 'package:auto_car/models/carrinho.dart';
+import 'package:auto_car/pages/carrinho_page.dart';
+import 'package:auto_car/pages/favorite_page.dart';
 import 'package:auto_car/pages/login_main/cadastro/cadastro_page.dart';
 import 'package:auto_car/pages/login_main/login/splash_screen.dart';
 import 'package:auto_car/pages/login_main/login_main_page.dart';
@@ -31,6 +34,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => CarList(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => Carrinho(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -50,10 +56,14 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         routes: {
           AppRoutes.HOME: (ctx) => const SplashScreen(),
+          //AppRoutes.HOME: (ctx) => const ProductCarPage(),
+
           AppRoutes.LOGIN_MAIN_PAGE: (ctx) => const LoginMainPage(),
           AppRoutes.LOGIN_PAGE: (ctx) => const LoginPage(),
           AppRoutes.CADASTRO_PAGE: (ctx) => const CadastroPage(),
           AppRoutes.PROUCT_CAR: (ctx) => const ProductCarPage(),
+          AppRoutes.FAVORITES: (ctx) => const FavoritePage(),
+          AppRoutes.CART: (ctx) => const CarrinhoPage(),
         },
       ),
     );

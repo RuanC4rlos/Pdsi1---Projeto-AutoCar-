@@ -1,7 +1,11 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'package:auto_car/components/bottom_navigation_bar.dart';
 import 'package:auto_car/data/dummy_data.dart';
 import 'package:auto_car/models/car.dart';
-import 'package:auto_car/components/bottom_navigation_bar.dart';
+import 'package:auto_car/models/carrinho.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DetailCarPage extends StatefulWidget {
   const DetailCarPage({required this.product, super.key});
@@ -14,18 +18,10 @@ class DetailCarPage extends StatefulWidget {
 class _DetailCarPageState extends State<DetailCarPage> {
   final List<Car> loadedProducts = dummyProducts;
 
-  late NavigationItem selectedItem;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      selectedItem = NavigationItem(Icons.home);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final carrinho = Provider.of<Carrinho>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 0, 255),
@@ -197,7 +193,11 @@ class _DetailCarPageState extends State<DetailCarPage> {
                 height: 45,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Coloque aqui a ação que deve ser executada ao pressionar o botão
+                    // setState(() {
+                    //   selectedItem = NavigationItem(Icons.home);
+                    // });
+
+                    carrinho.addItem(widget.product);
                   },
                   style: ElevatedButton.styleFrom(
                     side: const BorderSide(
@@ -245,7 +245,7 @@ class _DetailCarPageState extends State<DetailCarPage> {
         ),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
-        selectedItem: selectedItem,
+        selectedItem: NavigationItem(Icons.exposure_zero),
       ),
     );
   }
