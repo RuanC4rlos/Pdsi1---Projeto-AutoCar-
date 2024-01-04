@@ -1,7 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-class Search extends StatelessWidget {
-  const Search({super.key});
+class Search extends StatefulWidget {
+  final StreamController<String> searchController;
+
+  const Search({Key? key, required this.searchController}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SearchState createState() => _SearchState();
+}
+
+class _SearchState extends State<Search> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      widget.searchController.add(_controller.text);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +30,11 @@ class Search extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: TextField(
+          controller: _controller,
+          onChanged: (value) {
+            setState(() {});
+            widget.searchController.add(value);
+          },
           decoration: InputDecoration(
             hintText: 'Search',
             hintStyle: const TextStyle(fontSize: 16),

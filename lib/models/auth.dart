@@ -34,17 +34,13 @@ class Auth with ChangeNotifier {
     final url =
         'https://identitytoolkit.googleapis.com/v1/accounts:$urlFragment?key=AIzaSyDlRZTku86r182G_ToO1ebBBW5A0fHbO9g';
 
-    final data = jsonEncode({
-      'email': email,
-      'password': password,
-      'returnSecureToken': true,
-    });
+    final response = await http.post(Uri.parse(url),
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'returnSecureToken': true,
+        }));
 
-    // ignore: unused_local_variable
-    final response = await http.post(
-      Uri.parse(url),
-      body: data,
-    );
     final body = jsonDecode(response.body);
 
     if (body['error'] != null) {
@@ -85,6 +81,7 @@ class Auth with ChangeNotifier {
     _userId = null;
     _expiryDate = null;
     _clearLogoutTimer();
+    notifyListeners();
   }
 
   void _clearLogoutTimer() {

@@ -6,6 +6,7 @@ import 'package:auto_car/models/car.dart';
 import 'package:auto_car/models/carrinho.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class DetailCarPage extends StatefulWidget {
   const DetailCarPage({required this.product, super.key});
@@ -21,10 +22,11 @@ class _DetailCarPageState extends State<DetailCarPage> {
   @override
   Widget build(BuildContext context) {
     final carrinho = Provider.of<Carrinho>(context);
-
+    final precoFormatado = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$')
+        .format(widget.product.preco);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 0, 0, 255),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(
           widget.product.modelo,
           style: const TextStyle(color: Colors.white),
@@ -40,21 +42,12 @@ class _DetailCarPageState extends State<DetailCarPage> {
                   SizedBox(
                     height: 320, // Altura da imagem
                     child: Center(
-                      child: Image.asset(widget.product.imageUrl,
+                      child: Image.network(widget.product.imageUrl,
                           fit: BoxFit
                               .cover // Ajuste a imagem para preencher o espaço
                           ),
                     ),
                   ),
-                  // const Positioned(
-                  //   top: 100.0,
-                  //   right: 30.0,
-                  //   child: Icon(
-                  //     Icons.favorite_border,
-                  //     color: Color.fromARGB(255, 0, 0, 255),
-                  //     size: 32,
-                  //   ),
-                  // ),
                 ],
               ),
               Padding(
@@ -74,7 +67,7 @@ class _DetailCarPageState extends State<DetailCarPage> {
                           ),
                         ), // Rótulo 'Marca'
                         Text(
-                          widget.product.fabricante,
+                          widget.product.marca,
                           style: const TextStyle(fontSize: 16),
                         ), // Marca do carro
                       ],
@@ -153,10 +146,10 @@ class _DetailCarPageState extends State<DetailCarPage> {
                     ),
                   ),
                   Text(
-                    'R\$ ${widget.product.preco}',
-                    style: const TextStyle(
+                    precoFormatado,
+                    style: TextStyle(
                       fontSize: 27,
-                      color: Color.fromARGB(255, 0, 0, 255),
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ), // Ano do carro
@@ -171,17 +164,17 @@ class _DetailCarPageState extends State<DetailCarPage> {
                     // Coloque aqui a ação que deve ser executada ao pressionar o botão
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 0, 0, 255),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 4,
                     // Cor de fundo
                   ),
-                  child: const Text(
+                  child: Text(
                     'Comprar',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 19,
                     ),
                   ),
@@ -200,17 +193,18 @@ class _DetailCarPageState extends State<DetailCarPage> {
                     carrinho.addItem(widget.product);
                   },
                   style: ElevatedButton.styleFrom(
-                    side: const BorderSide(
-                        color: Color.fromARGB(255, 0, 0, 255), width: 2),
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 4,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Adicionar ao carrinho',
                     style: TextStyle(
-                        color: Color.fromARGB(255, 0, 0, 255),
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 19,
                         fontWeight: FontWeight.bold),
                   ),

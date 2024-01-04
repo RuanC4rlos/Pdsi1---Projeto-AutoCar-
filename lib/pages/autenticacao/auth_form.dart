@@ -1,42 +1,48 @@
-import 'package:auto_car/pages/produtos_car_screen.dart';
+import 'package:auto_car/exceptions/auth_exception.dart';
+import 'package:auto_car/models/auth.dart';
 import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
-import '../../../exceptions/auth_exception.dart';
-import '../../../models/auth.dart';
+enum AuthMode { signup, login }
 
-class FormLogin extends StatefulWidget {
-  const FormLogin({Key? key}) : super(key: key);
+class AuthForm extends StatefulWidget {
+  final ValueChanged<AuthMode> onAuthModeChange;
+  final AuthMode initialAuthMode;
+  const AuthForm(
+      {required this.initialAuthMode, required this.onAuthModeChange, Key? key})
+      : super(key: key);
 
   @override
-  State<FormLogin> createState() => _FormLoginState();
+  State<AuthForm> createState() => _AuthFormState();
 }
 
-class _FormLoginState extends State<FormLogin>
+class _AuthFormState extends State<AuthForm>
     with SingleTickerProviderStateMixin {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-
-  final _emailFocusNode = FocusNode(); // Add a focus node for the email field
-  final _passwordFocusNode =
-      FocusNode(); // Add a focus node for the password field
-
+  late AuthMode _authMode;
   final Map<String, String> _authData = {
     'email': '',
     'password': '',
   };
 
+  final _emailFocusNode = FocusNode(); // Add a focus node for the email field
+  final _passwordFocusNode =
+      FocusNode(); // Add a focus node for the password field
+
   AnimationController? _controller;
   Animation<double>? _opacityAnimation;
   Animation<Offset>? _slideAnimation;
 
+  bool _isLogin() => _authMode == AuthMode.login;
+  Auth modo = Auth();
   @override
   void initState() {
     super.initState();
-
+    _authMode = widget.initialAuthMode;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -63,13 +69,35 @@ class _FormLoginState extends State<FormLogin>
         curve: Curves.linear,
       ),
     );
+
+    // _heightAnimation?.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller?.dispose();
+  }
+
+  void _switchAuthMode() {
+    setState(() {
+      if (_authMode == AuthMode.login) {
+        _authMode = AuthMode.signup;
+        _controller?.forward();
+      } else {
+        _authMode = AuthMode.login;
+
+        _controller?.reverse();
+      }
+      widget.onAuthModeChange.call(_authMode);
+    });
   }
 
   void _showErrorDialog(String msg) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Ocorreu um Erro'),
+        title: const Text('Ocorreo um Erro'),
         content: Text(msg),
         actions: [
           TextButton(
@@ -91,22 +119,30 @@ class _FormLoginState extends State<FormLogin>
     setState(() => _isLoading = true);
 
     _formKey.currentState?.save();
-
-    Auth auth = Provider.of<Auth>(context, listen: false);
+    Auth auth = Provider.of(context, listen: false);
 
     try {
-      // Login
-      await auth.login(
-        _authData['email']!,
-        _authData['password']!,
-      );
-      // ignore: use_build_context_synchronously
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const ProductCarPage()));
+      if (_isLogin()) {
+        // Login
+        await auth.login(
+          _authData['email']!,
+          _authData['password']!,
+        );
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacementNamed(context, AppRoutes.PROUCT_CAR);
+      } else {
+        // Registrar
+        await auth.signup(
+          _authData['email']!,
+          _authData['password']!,
+        );
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacementNamed(context, AppRoutes.PROUCT_CAR);
+      }
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
     } catch (error) {
-      _showErrorDialog('Email ou senha incorretos!');
+      _showErrorDialog('Ocorreu um erro inesperado!');
     }
 
     setState(() => _isLoading = false);
@@ -115,7 +151,6 @@ class _FormLoginState extends State<FormLogin>
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -126,7 +161,7 @@ class _FormLoginState extends State<FormLogin>
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeIn,
           padding: const EdgeInsets.all(16),
-          height: 355,
+          height: _isLogin() ? 340 : 430,
           width: deviceSize.width * 0.75,
           child: Form(
             key: _formKey,
@@ -180,9 +215,9 @@ class _FormLoginState extends State<FormLogin>
                   },
                 ),
                 AnimatedContainer(
-                  constraints: const BoxConstraints(
-                    minHeight: 0,
-                    maxHeight: 0,
+                  constraints: BoxConstraints(
+                    minHeight: _isLogin() ? 0 : 60,
+                    maxHeight: _isLogin() ? 0 : 120,
                   ),
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.linear,
@@ -190,6 +225,22 @@ class _FormLoginState extends State<FormLogin>
                     opacity: _opacityAnimation!,
                     child: SlideTransition(
                       position: _slideAnimation!,
+                      child: TextFormField(
+                        decoration:
+                            const InputDecoration(labelText: 'Confirmar Senha'),
+                        keyboardType: TextInputType.emailAddress,
+                        obscureText: true,
+                        validator: _isLogin()
+                            ? null
+                            // ignore: no_leading_underscores_for_local_identifiers
+                            : (_password) {
+                                final password = _password ?? '';
+                                if (password != _passwordController.text) {
+                                  return 'Senhas informadas não conferem.';
+                                }
+                                return null;
+                              },
+                      ),
                     ),
                   ),
                 ),
@@ -223,22 +274,19 @@ class _FormLoginState extends State<FormLogin>
                           vertical: 8,
                         ),
                       ),
-                      child: const Text(
-                        'Entrar',
-                        style: TextStyle(
+                      child: Text(
+                        _authMode == AuthMode.login ? 'ENTRAR' : 'REGISTRAR',
+                        style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(
-                        context, AppRoutes.CADASTRO_PAGE);
-                  },
-                  child: const Text(
-                    'DESEJA REGISTRAR?',
-                    style: TextStyle(
+                  onPressed: _switchAuthMode,
+                  child: Text(
+                    _isLogin() ? 'DESEJA REGISTRAR?' : 'JÁ POSSUI CONTA?',
+                    style: const TextStyle(
                         fontWeight: FontWeight.w700, color: Color(0xFF7033FF)),
                   ),
                 ),

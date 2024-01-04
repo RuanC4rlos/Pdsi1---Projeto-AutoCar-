@@ -1,5 +1,6 @@
 import 'package:auto_car/exceptions/auth_exception.dart';
 import 'package:auto_car/models/auth.dart';
+import 'package:auto_car/pages/autenticacao/auth_page.dart';
 import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
@@ -77,7 +78,7 @@ class _FormCadastroState extends State<FormCadastro>
 
     setState(() => _isLoading = false);
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
+    Navigator.pushReplacementNamed(context, AppRoutes.PROUCT_CAR);
   }
 
   @override
@@ -203,7 +204,16 @@ class _FormCadastroState extends State<FormCadastro>
               const Spacer(),
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          const AuthPage(),
+                      transitionDuration: const Duration(seconds: 0),
+                    ),
+                  );
+
+                  //Navigator.pushReplacementNamed(context, AppRoutes.AUTHPAGE);
                 },
                 child: const Text(
                   'JÁ POSSUI CONTA?',

@@ -1,11 +1,12 @@
 // ignore_for_file: depend_on_referenced_packages
+import 'dart:async';
+
 import 'package:auto_car/components/bottom_navigation_bar.dart';
+import 'package:auto_car/models/car_list.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_car/components/app_drawer.dart';
 import 'package:auto_car/components/product_item.dart';
 import 'package:auto_car/components/search.dart';
-import 'package:auto_car/data/dummy_data.dart';
-import 'package:auto_car/models/car.dart';
 import 'package:provider/provider.dart';
 
 class ProductCarPage extends StatefulWidget {
@@ -16,10 +17,27 @@ class ProductCarPage extends StatefulWidget {
 }
 
 class _ProductCarPageState extends State<ProductCarPage> {
-  final List<Car> loadedProducts = dummyProducts;
+  bool _isLoading = true;
+  final StreamController<String> _searchController =
+      StreamController<String>.broadcast();
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<CarList>(
+      context,
+      listen: false,
+    ).loadProducts().then((value) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final loadedProducts = Provider.of<CarList>(context).items;
+
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -27,32 +45,40 @@ class _ProductCarPageState extends State<ProductCarPage> {
           child: Image.asset(
             'assets/images/logo.png',
             height: 35,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
-        backgroundColor: const Color(0xFF003BDF),
-        //Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: Column(
-        children: [
-          // Adicionando o componente Search
-          const Search(),
-          // Adicionando a lista de produtos
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(10),
-                itemCount: loadedProducts.length,
-                itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-                  value: loadedProducts[i],
-                  child: const ProductItem(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Search(searchController: _searchController),
+                Expanded(
+                  child: StreamBuilder<String>(
+                    stream: _searchController.stream,
+                    builder: (ctx, snapshot) {
+                      final searchValue = snapshot.data ?? '';
+                      final filteredProducts = loadedProducts.where((product) {
+                        return product.marca
+                            .toLowerCase()
+                            .contains(searchValue.toLowerCase());
+                      }).toList();
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(10),
+                        itemCount: filteredProducts.length,
+                        itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                          value: filteredProducts[i],
+                          child: const ProductItem(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
       drawer: const AppDrawer(),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedItem: NavigationItem(Icons.home),

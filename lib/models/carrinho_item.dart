@@ -1,9 +1,9 @@
 class CarrinhoItem {
-  final int id;
-  final num productId;
+  final String id;
+  final String productId;
   final String name;
   final int quantity;
-  final String price;
+  final double price;
   final String imageUrl;
   CarrinhoItem(
       {required this.id,

@@ -18,9 +18,8 @@ class Carrinho with ChangeNotifier {
     double total = 0.0;
     _items.forEach((key, cartItem) {
       // Convert price and quantity to double before multiplication
-      double price = double.parse(cartItem.price
-          .replaceAll('.', '')
-          .replaceAll(',', '.')); // assuming price is formatted as '50.000,00'
+      double price = double.parse(cartItem.price.toString());
+// assuming price is formatted as '50.000,00'
       double quantity = cartItem.quantity.toDouble();
 
       total += price * quantity;
@@ -46,9 +45,9 @@ class Carrinho with ChangeNotifier {
       _items.putIfAbsent(
         productIdString,
         () => CarrinhoItem(
-          id: Random().nextInt(1000),
+          id: Random().nextInt(1000).toString(),
           productId: product.id,
-          name: product.fabricante,
+          name: product.marca,
           quantity: 1,
           price: product.preco,
           imageUrl: product.imageUrl,

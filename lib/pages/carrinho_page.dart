@@ -23,7 +23,7 @@ class CarrinhoPage extends StatelessWidget {
           "Carrinho",
           style: TextStyle(color: Colors.white, fontSize: 26),
         ),
-        backgroundColor: const Color(0xFF003BDF),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
       ),
       body: Column(
@@ -43,7 +43,7 @@ class CarrinhoPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Chip(
-                    backgroundColor: const Color(0xFF003BDF),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     label: Text(
                       formatCurrency.format(cart.totalAmount),
                       style: const TextStyle(

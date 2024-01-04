@@ -1,15 +1,22 @@
+import 'package:auto_car/models/auth.dart';
 import 'package:auto_car/models/car.dart';
 import 'package:auto_car/pages/detail_car_page.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
-class ProductItem extends StatelessWidget {
+class ProductItem extends StatefulWidget {
   const ProductItem({super.key});
 
   @override
+  State<ProductItem> createState() => _ProductItemState();
+}
+
+class _ProductItemState extends State<ProductItem> {
+  @override
   Widget build(BuildContext context) {
-    final product = Provider.of<Car>(context);
+    final auth = Provider.of<Auth>(context, listen: false);
+    final product = Provider.of<Car>(context, listen: false);
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -34,7 +41,7 @@ class ProductItem extends StatelessWidget {
                     topLeft: Radius.circular(15),
                     topRight: Radius.circular(15),
                   ),
-                  child: Image.asset(
+                  child: Image.network(
                     product.imageUrl,
                     height: 150,
                     width: double.infinity,
@@ -46,14 +53,19 @@ class ProductItem extends StatelessWidget {
                   right: 8.0,
                   child: IconButton(
                     onPressed: () {
-                      product.toggleFavorite();
+                      setState(() {
+                        product.toggleFavorite(
+                          auth.token ?? '',
+                          auth.userId ?? '',
+                        );
+                      });
                     },
                     icon: Icon(
                       product.isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
                       size: 30,
-                      color: const Color.fromARGB(255, 0, 0, 255),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -69,7 +81,7 @@ class ProductItem extends StatelessWidget {
                       CrossAxisAlignment.start, // Alinha os textos à esquerda
                   children: [
                     Text(
-                      product.fabricante,
+                      product.marca,
                       style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
