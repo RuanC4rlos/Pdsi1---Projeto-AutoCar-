@@ -1,6 +1,8 @@
+import 'package:auto_car/components/app_drawer.dart';
 import 'package:auto_car/components/bottom_navigation_bar.dart';
 import 'package:auto_car/components/carinho_item.dart';
 import 'package:auto_car/models/carrinho.dart';
+import 'package:auto_car/models/order_list.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
@@ -26,6 +28,7 @@ class CarrinhoPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
       ),
+      drawer: const AppDrawer(),
       body: Column(
         children: [
           Card(
@@ -52,13 +55,7 @@ class CarrinhoPage extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "COMPRAR",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  )
+                  CartButton(cart: cart)
                 ],
               ),
             ),
@@ -75,5 +72,45 @@ class CarrinhoPage extends StatelessWidget {
         selectedItem: NavigationItem(Icons.shopping_cart),
       ),
     );
+  }
+}
+
+class CartButton extends StatefulWidget {
+  const CartButton({
+    super.key,
+    required this.cart,
+  });
+
+  final Carrinho cart;
+
+  @override
+  State<CartButton> createState() => _CartButtonState();
+}
+
+class _CartButtonState extends State<CartButton> {
+  late bool _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return _isLoading
+        ? const CircularProgressIndicator()
+        : TextButton(
+            onPressed: widget.cart.itemsCount == 0
+                ? null
+                : () async {
+                    setState(() => _isLoading = true);
+                    await Provider.of<OrderList>(
+                      context,
+                      listen: false,
+                    ).addOrder(widget.cart);
+
+                    widget.cart.clear();
+
+                    setState(() => _isLoading = false);
+                  },
+            child: const Text(
+              "COMPRAR",
+              style: TextStyle(color: Colors.black),
+            ),
+          );
   }
 }

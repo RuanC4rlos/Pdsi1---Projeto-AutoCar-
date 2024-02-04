@@ -1,5 +1,4 @@
-import 'package:auto_car/pages/autenticacao/auth_page.dart';
-import 'package:auto_car/pages/autenticacao/cadastro2_page.dart';
+import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class LoginMainPage extends StatefulWidget {
@@ -54,8 +53,10 @@ class _LoginMainPageState extends State<LoginMainPage> {
                 children: [
                   Container(
                     width: containerWidth * 1,
-                    height: containerHeight * 0.4621,
-                    // height: containerHeight * 0.4537,
+                    //height: containerHeight * 0.4621,
+                    //height: containerHeight * 0.4537,
+                    height: containerHeight * 0.3954,
+
                     decoration: const BoxDecoration(
                       color: Color(0xFF003BDF),
                       borderRadius: BorderRadius.only(
@@ -72,17 +73,14 @@ class _LoginMainPageState extends State<LoginMainPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AuthPage(
-                                          /*
-                                          initialAuthMode: _authMode,
-                                          onAuthModeChange:
-                                              _handleAuthModeChange*/
-                                          ),
-                                    ),
-                                  );
+                                  Navigator.of(context)
+                                      .pushReplacementNamed(AppRoutes.AUTHPAGE);
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => const AuthPage(),
+                                  //   ),
+                                  // );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: entrarTextColor,
@@ -104,17 +102,15 @@ class _LoginMainPageState extends State<LoginMainPage> {
                               const SizedBox(height: 40),
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const CadastroPage(
-                                          /*
-                                        initialAuthMode: AuthMode.signup,
-                                        onAuthModeChange: _handleAuthModeChange,
-                                      */
-                                          ),
-                                    ),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         const CadastroPage(),
+                                  //   ),
+                                  // );
+                                  Navigator.of(context).pushReplacementNamed(
+                                      AppRoutes.CADASTRO_PAGE);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: cadastroTextColor,

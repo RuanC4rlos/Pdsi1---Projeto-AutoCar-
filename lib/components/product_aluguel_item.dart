@@ -11,15 +11,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ProductGerenciarItem extends StatefulWidget {
+class ProductAlugarItem extends StatefulWidget {
   final Car product;
-  const ProductGerenciarItem({required this.product, super.key});
+  const ProductAlugarItem({required this.product, super.key});
 
   @override
-  State<ProductGerenciarItem> createState() => _ProductGerenciarItemState();
+  State<ProductAlugarItem> createState() => _ProductAlugarItemState();
 }
 
-class _ProductGerenciarItemState extends State<ProductGerenciarItem> {
+class _ProductAlugarItemState extends State<ProductAlugarItem> {
   final FirebaseStorage storage = FirebaseStorage.instance;
 
   // final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -37,7 +37,7 @@ class _ProductGerenciarItemState extends State<ProductGerenciarItem> {
   }
 
   loadImages(String userId, String nomeCar) async {
-    refs = (await storage.ref('$userId/vender/$nomeCar').listAll()).items;
+    refs = (await storage.ref('$userId/alugar/$nomeCar').listAll()).items;
     if (refs.isNotEmpty) {
       final arquivo = await refs.first.getDownloadURL();
       arquivos.add(arquivo);
@@ -52,7 +52,7 @@ class _ProductGerenciarItemState extends State<ProductGerenciarItem> {
 
   deleteFolder(String userId, String nomeCar) async {
     late int index = 0;
-    refs = (await storage.ref('$userId/vender/$nomeCar').listAll()).items;
+    refs = (await storage.ref('$userId/alugar/$nomeCar').listAll()).items;
     for (var ref in refs) {
       final arquivo = await ref.getDownloadURL();
       arquivos.add(arquivo);
@@ -98,7 +98,7 @@ class _ProductGerenciarItemState extends State<ProductGerenciarItem> {
                 color: Theme.of(context).colorScheme.primary,
                 onPressed: () {
                   Navigator.of(context).pushNamed(
-                    AppRoutes.PRODUCTFORM,
+                    AppRoutes.PRODUCTFORMALUGUEL,
                     arguments: RouteArguments(
                         isEditing: true, product: widget.product),
                   );
@@ -123,11 +123,12 @@ class _ProductGerenciarItemState extends State<ProductGerenciarItem> {
                             Provider.of<CarList>(
                               context,
                               listen: false,
-                            ).removeProduct(widget.product);
+                            ).removeProductAlugado(widget.product);
                             //Navigator.of(ctx).pop();
                             deleteFolder(
                                 user.userId as String, widget.product.apelido);
-                            Navigator.of(context).pushNamed(AppRoutes.PRODUCTS);
+                            Navigator.of(context)
+                                .pushNamed(AppRoutes.RESERVAR_CAR);
                           },
                           child: const Text('Sim'),
                         ),

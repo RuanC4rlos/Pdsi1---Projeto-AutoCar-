@@ -35,10 +35,10 @@ class Carrinho with ChangeNotifier {
         (existingItem) => CarrinhoItem(
           id: existingItem.id,
           productId: existingItem.productId,
-          name: existingItem.name,
-          quantity: existingItem.quantity + 1,
+          marca: existingItem.marca,
+          modelo: existingItem.modelo,
+          quantity: existingItem.quantity,
           price: existingItem.price,
-          imageUrl: existingItem.imageUrl,
         ),
       );
     } else {
@@ -47,10 +47,10 @@ class Carrinho with ChangeNotifier {
         () => CarrinhoItem(
           id: Random().nextInt(1000).toString(),
           productId: product.id,
-          name: product.marca,
+          marca: product.marca,
+          modelo: product.modelo,
           quantity: 1,
           price: product.preco,
-          imageUrl: product.imageUrl,
         ),
       );
     }

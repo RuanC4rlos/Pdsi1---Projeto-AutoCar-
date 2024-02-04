@@ -2,6 +2,8 @@
 
 import 'package:auto_car/components/badgee.dart';
 import 'package:auto_car/models/carrinho.dart';
+import 'package:auto_car/pages/carrinho_page.dart';
+import 'package:auto_car/pages/favoritos/favorite_page.dart';
 import 'package:auto_car/pages/produtos_car_screen.dart';
 import 'package:auto_car/utils/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -80,11 +82,21 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             MaterialPageRoute(builder: (context) => const ProductCarPage()),
           );
         } else if (item.iconData == Icons.search) {
-          await Navigator.pushNamed(context, '/search');
+          await Navigator.of(context).pushNamed(AppRoutes.SEARCH);
         } else if (item.iconData == Icons.favorite) {
-          await Navigator.of(context).pushReplacementNamed(AppRoutes.FAVORITES);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => const FavoritePage(),
+            ),
+          );
+          //await Navigator.of(context).pushReplacementNamed(AppRoutes.FAVORITES);
         } else if (item.iconData == Icons.shopping_cart) {
-          await Navigator.of(context).pushReplacementNamed(AppRoutes.CART);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => const CarrinhoPage(),
+            ),
+          );
+          //await Navigator.of(context).pushReplacementNamed(AppRoutes.CART);
         }
 
         Container(

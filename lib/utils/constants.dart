@@ -3,7 +3,14 @@
 class Constants {
   static const USER_FAVORITES_URL =
       'https://autocar-92774-default-rtdb.firebaseio.com/userFavorites';
-
-  static const PRODUCT_BASE_URL =
-      'https://autocar-92774-default-rtdb.firebaseio.com/products';
+  // static const PRODUCT_BASE_URL =
+  //     'https://autocar-92774-default-rtdb.firebaseio.com/products';
+  static const PRODUCT_VENDA_URL =
+      'https://autocar-92774-default-rtdb.firebaseio.com/products/vender';
+  static const PRODUCT_ALUGADO_URL =
+      'https://autocar-92774-default-rtdb.firebaseio.com/products/alugar';
+  static const ORDER_BASE_URL =
+      'https://autocar-92774-default-rtdb.firebaseio.com/orders';
+  static const RESERVA_BASE_URL =
+      'https://autocar-92774-default-rtdb.firebaseio.com/reserva';
 }

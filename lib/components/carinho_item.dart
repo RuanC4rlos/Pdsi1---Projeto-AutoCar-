@@ -55,15 +55,7 @@ class CarrinhoItemWidget extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              leading: FittedBox(
-                child: Image.network(
-                  cartItem.imageUrl,
-                  height: 50,
-                  width: 100,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              title: Text(cartItem.name),
+              title: Text('${cartItem.marca}  ${cartItem.modelo}'),
               subtitle:
                   Text('Total: R\$ ${cartItem.price * cartItem.quantity},'),
               trailing: Text('${cartItem.quantity}x'),

@@ -1,20 +1,19 @@
 // ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
-
 import 'dart:io';
 import 'package:auto_car/components/app_drawer.dart';
 import 'package:auto_car/components/bottom_navigation_bar.dart';
+import 'package:auto_car/models/auth.dart';
 import 'package:auto_car/models/car.dart';
 import 'package:auto_car/models/car_list.dart';
+import 'package:auto_car/models/routeArguments.dart';
+import 'package:auto_car/pages/produtos_car_screen.dart';
+import 'package:auto_car/utils/app_routes.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
-// ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart' as syspaths;
-// ignore: duplicate_import
-import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:image_picker/image_picker.dart';
-// ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
 class ProductFormPage extends StatefulWidget {
@@ -29,15 +28,26 @@ class _ProductFormPageState extends State<ProductFormPage> {
   late File _pickedImage;
   final _formKey = GlobalKey<FormState>();
   final _formData = <String, Object>{};
-  final _imageUrlController = TextEditingController();
+  //final _imageUrlController = TextEditingController();
   bool _isLoading = false;
   final _imageUrlFocus = FocusNode();
   File? _storedImage;
+  late String? _groupValue = _formData['estado'] as String?;
+  final FirebaseStorage storage = FirebaseStorage.instance;
+  // final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  List<Reference> refs = [];
+  List<String> arquivos = [];
+  bool loading = true;
+  bool uploading = false;
+  double total = 0;
+  late String nomeCar = '';
 
   @override
   void initState() {
     super.initState();
     _imageUrlFocus.addListener(updateImage);
+    nomeCar =
+        _formData['apelido'] != null ? _formData['apelido'].toString() : '';
   }
 
   @override
@@ -45,12 +55,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
     super.didChangeDependencies();
 
     if (_formData.isEmpty) {
-      final arg = ModalRoute.of(context)?.settings.arguments;
-
-      if (arg != null) {
-        final product = arg as Car;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as RouteArguments?;
+      if (args != null) {
+        final product = args.product;
         _formData['id'] = product.id;
-        _formData['cpf'] = product.cpf;
+        _formData['apelido'] = product.apelido;
         _formData['marca'] = product.marca;
         _formData['modelo'] = product.modelo;
         _formData['ano'] = product.ano;
@@ -58,9 +68,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
         _formData['cor'] = product.cor;
         _formData['preco'] = product.preco;
         _formData['descricao'] = product.descricao;
-        _formData['imageUrl'] = product.imageUrl;
-
-        _imageUrlController.text = product.imageUrl;
+        _formData['estado'] = product.estado;
       }
     }
   }
@@ -92,58 +100,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
     _selectImage(savedImage);
   }
 
-  bool _isValidCPF(String cpf) {
-    if (cpf.isEmpty) {
-      return false;
-    }
-
-    // Remova caracteres não numéricos do CPF
-    cpf = cpf.replaceAll(RegExp(r'\D'), '');
-
-    if (cpf.length != 11) {
-      return false;
-    }
-
-    // Verifica se todos os dígitos são iguais
-    if (RegExp(r'^(\d)\1+$').hasMatch(cpf)) {
-      return false;
-    }
-
-    // Calcula e verifica os dígitos verificadores
-    int digit1 = _calculateCPFVerifierDigit(cpf.substring(0, 9));
-    int digit2 =
-        _calculateCPFVerifierDigit(cpf.substring(0, 9) + digit1.toString());
-
-    return cpf.endsWith(digit1.toString() + digit2.toString());
-  }
-
-  int _calculateCPFVerifierDigit(String partialCPF) {
-    List<int> cpfDigits =
-        partialCPF.split('').map((e) => int.parse(e)).toList();
-
-    int sum = 0;
-    int weight = cpfDigits.length + 1;
-
-    for (int digit in cpfDigits) {
-      sum += digit * weight;
-      weight--;
-    }
-
-    int remainder = sum % 11;
-
-    return remainder < 2 ? 0 : 11 - remainder;
-  }
-
   void updateImage() {
     setState(() {});
-  }
-
-  bool isValidImageUrl(String url) {
-    bool isValidUrl = Uri.tryParse(url)?.hasAbsolutePath ?? false;
-    bool endsWithFile = url.toLowerCase().endsWith('.png') ||
-        url.toLowerCase().endsWith('.jpg') ||
-        url.toLowerCase().endsWith('.jpeg');
-    return isValidUrl && endsWithFile;
   }
 
   Future<void> _submitForm() async {
@@ -163,13 +121,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
         listen: false,
       ).saveProduct(_formData);
 
-      Navigator.of(context).pop();
+      //Navigator.of(context).pop();
+
+      Navigator.pushNamed(context, AppRoutes.PRODUCTS);
     } catch (error) {
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text("Ocorreu um erro!"),
-          content: const Text("Ocorreu um erro para salvar o produto."),
+          content: Text("Ocorreu um erro para salvar o produto. Erro: $error"),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -183,8 +143,106 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
+  void openFiles(List<PlatformFile> files) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ProductCarPage(),
+      ),
+    );
+  }
+
+  Future<File> saveFile(PlatformFile file) async {
+    final appStorage = await syspaths.getApplicationCacheDirectory();
+    final newFile = File(appStorage.path);
+    return File(file.path!).copy(newFile.path);
+  }
+
+  Future<XFile?> getImage() async {
+    final ImagePicker picker = ImagePicker();
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    return image;
+  }
+
+  Future<List<UploadTask>> upload(
+      List<String> paths, String userId, String nomeCar) async {
+    List<UploadTask> tasks = [];
+    for (String path in paths) {
+      File file = File(path);
+      try {
+        String ref =
+            '$userId/vender/$nomeCar/img-${DateTime.now().toString()}.jpeg';
+        final storageRef = FirebaseStorage.instance.ref();
+        tasks.add(storageRef.child(ref).putFile(
+              file,
+              SettableMetadata(
+                cacheControl: "public, max-age=300",
+                contentType: "image/jpeg",
+              ),
+            ));
+      } on FirebaseException catch (e) {
+        throw Exception('Erro no upload: ${e.code}');
+      }
+    }
+    return tasks;
+  }
+
+  pickAndUploadImage(String userId, String nomeCar) async {
+    List<XFile>? files = await ImagePicker().pickMultiImage();
+    List<String> paths = files.map((file) => file.path).toList();
+    List<UploadTask> tasks = await upload(paths, userId, nomeCar);
+
+    for (UploadTask task in tasks) {
+      task.snapshotEvents.listen((TaskSnapshot snapshot) async {
+        if (snapshot.state == TaskState.running) {
+          setState(() {
+            total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          });
+        } else if (snapshot.state == TaskState.success) {
+          final photoRef = snapshot.ref;
+
+          arquivos.add(await photoRef.getDownloadURL());
+          refs.add(photoRef);
+          setState(() {});
+        }
+      });
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Mensagem'),
+          content: const Text('Imagens adicionadas com sucesso!'),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool isNotEmpty(String input) {
+    return input.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
+//    final args = ModalRoute.of(context)!.settings.arguments;
+    final args = ModalRoute.of(context)?.settings.arguments as RouteArguments?;
+
+    late bool isEditing = false;
+    if (args != null) {
+      isEditing = args.isEditing;
+    } else {
+      isEditing = false;
+    }
+
+    final user = Provider.of<Auth>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cadastrar Carro"),
@@ -211,24 +269,32 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ignore: duplicate_ignore
-                      TextFormField(
-                        initialValue: _formData['cpf']?.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Cpf',
+                      if (!isEditing)
+                        TextFormField(
+                          initialValue: isEditing
+                              ? nomeCar = _formData['apelido']!.toString()
+                              : nomeCar,
+                          //_formData['apelido']?.toString(),
+                          decoration: const InputDecoration(
+                            labelText: 'Titulo',
+                          ),
+                          textInputAction: TextInputAction.next,
+                          onChanged: (apelido) {
+                            setState(() {
+                              nomeCar = apelido;
+                            });
+                          },
+                          onSaved: (apelido) =>
+                              _formData['apelido'] = apelido ?? '',
+                          validator: (Apelido) {
+                            final apelido = Apelido ?? '';
+                            if (apelido.trim().isEmpty) {
+                              return 'Titulo do carro é obrigatorio!';
+                            }
+                            return null;
+                          },
                         ),
-                        keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.next,
-                        onSaved: (cpf) => _formData['cpf'] = cpf ?? '',
-                        validator: (cpf) {
-                          if (cpf == null) {
-                            return 'CPF é obrigatório!';
-                          }
-                          if (!_isValidCPF(cpf)) {
-                            return 'CPF inválido!';
-                          }
-                          return null;
-                        },
-                      ),
+
                       Row(
                         children: [
                           Expanded(
@@ -376,99 +442,83 @@ class _ProductFormPageState extends State<ProductFormPage> {
                         children: [
                           Radio(
                             value: 'Novo',
-                            groupValue: 'vehicle',
-                            onChanged: (value) {},
+                            groupValue: _groupValue,
+                            activeColor: Colors.black,
+                            onChanged: (value) {
+                              setState(() {
+                                _groupValue = value!;
+                                _formData['estado'] = _groupValue!;
+                              });
+                            },
                           ),
                           const Text('Novo'),
                           Radio(
                             value: 'Usado',
-                            groupValue: 'vehicle',
-                            onChanged: (value) {},
+                            groupValue: _groupValue,
+                            activeColor: Colors.black,
+                            onChanged: (value) {
+                              setState(() {
+                                _groupValue = value!;
+
+                                _formData['estado'] = _groupValue!;
+                              });
+                            },
                           ),
                           const Text('Usado'),
                         ],
                       ),
                       const SizedBox(height: 16.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                  labelText: 'Url da Imagem'),
-                              focusNode: _imageUrlFocus,
-                              controller: _imageUrlController,
-                              textInputAction: TextInputAction.done,
-                              keyboardType: TextInputType.url,
-                              onFieldSubmitted: (_) => _submitForm(),
-                              onSaved: (imageUrl) =>
-                                  _formData['imageUrl'] = imageUrl ?? '',
-                              // ignore: no_leading_underscores_for_local_identifiers
-                              validator: (_imageUrl) {
-                                final imageUrl = _imageUrl ?? '';
 
-                                if (!isValidImageUrl(imageUrl)) {
-                                  return 'Informe uma Url válida';
-                                }
-
-                                return null;
-                              },
-                            ),
-                          ),
-                          Container(
-                            height: 100,
-                            width: 100,
-                            margin: const EdgeInsets.only(
-                              top: 10,
-                              left: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: _imageUrlController.text.isEmpty
-                                ? const Text('Informa a Url')
-                                : Image.network(_imageUrlController.text),
-                          ),
-                        ],
+                      ElevatedButton(
+                        onPressed: () {
+                          // //String id = product.id;
+                          if (isEditing) {
+                            final product =
+                                Provider.of<Car>(context, listen: false);
+                            final prod =
+                                Provider.of<CarList>(context, listen: false);
+                            prod.loadProducts();
+                            final bool text = product.isForRent;
+                            nomeCar = _formData['apelido']!.toString();
+                            Navigator.of(context).pushNamed(
+                                AppRoutes.EDITSTORAGE,
+                                arguments: {'nomeCar': nomeCar, 'text': text});
+                          } else {
+                            if (nomeCar.isNotEmpty) {
+                              pickAndUploadImage(
+                                  user.userId as String, nomeCar);
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Mensagem!'),
+                                    content:
+                                        const Text('Prencha os campos acima!'),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () {
+                                          // Coloque aqui o código que deve ser executado quando o botão OK for pressionado.
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          }
+                        },
+                        child: isEditing
+                            ? const Text('Editar Imagens')
+                            : const Text('Adicionar Imagens'),
                       ),
-                      //**************************************** */
-                      //ImageInput(_selectImage),
-                      // Row(
-                      //   children: [
-                      //     Container(
-                      //       width: 180,
-                      //       height: 100,
-                      //       decoration: BoxDecoration(
-                      //         border: Border.all(
-                      //           width: 1,
-                      //           color: Colors.grey,
-                      //         ),
-                      //       ),
-                      //       alignment: Alignment.center,
-                      //       child: _storedImage != null
-                      //           ? Image.file(
-                      //               _storedImage!,
-                      //               width: double.infinity,
-                      //               fit: BoxFit.cover,
-                      //             )
-                      //           : const Text('Nenhum imagem!'),
-                      //     ),
-                      //     const SizedBox(width: 10),
-                      //     TextButton.icon(
-                      //       onPressed: _takePicture,
-                      //       icon: const Icon(Icons.camera),
-                      //       label: const Text('Tirar Foto'),
-                      //       style: TextButton.styleFrom(
-                      //         foregroundColor: Theme.of(context).colorScheme.primary,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      //**************************************** */
-
+                      if (!isEditing)
+                        SizedBox(
+                          child:
+                              Text('Quantidade de imagens: ${arquivos.length}'),
+                        ),
                       const SizedBox(height: 22),
                       const Padding(padding: EdgeInsets.all(2)),
                       Center(
@@ -477,7 +527,23 @@ class _ProductFormPageState extends State<ProductFormPage> {
                           height: 45,
                           child: ElevatedButton(
                             onPressed: () {
-                              _submitForm();
+                              if (arquivos.isEmpty) {
+                                AlertDialog(
+                                  title: const Text("Ocorreu um erro!"),
+                                  content:
+                                      const Text("Imagens não adicionadas!"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text("Ok"),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                _submitForm();
+                              }
+                              //_submitForm();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:

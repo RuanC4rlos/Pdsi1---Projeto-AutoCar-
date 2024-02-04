@@ -15,6 +15,7 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Theme.of(context).colorScheme.primary,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,17 +36,26 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.car_crash),
-            title: const Text('Vender Carro'),
+            title: const Text('Vender meu carro'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(AppRoutes.PRODUCTS);
             },
           ),
           const Divider(color: Colors.black),
           ListTile(
-            leading: const Icon(Icons.payment),
-            title: const Text('Aluguar Carro'),
+            leading: const Icon(Icons.car_rental),
+            title: const Text('Aluguar meu veiculo'),
             onTap: () {
-              //Navigator.of(context).pushReplacementNamed(AppRoutes.AUTH_OR_HOME,)
+              Navigator.of(context)
+                  .pushReplacementNamed(AppRoutes.RESERVAR_CAR);
+            },
+          ),
+          const Divider(color: Colors.black),
+          ListTile(
+            leading: const Icon(Icons.payment),
+            title: const Text('Pedidos'),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.ORDERS);
             },
           ),
           const Divider(color: Colors.black),

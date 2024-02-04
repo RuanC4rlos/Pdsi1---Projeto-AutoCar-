@@ -1,13 +1,13 @@
 import 'dart:convert';
-
 import 'package:auto_car/utils/constants.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class Car with ChangeNotifier {
   String id;
-  String cpf;
+  String apelido;
   String marca;
   String modelo;
   String ano;
@@ -15,12 +15,14 @@ class Car with ChangeNotifier {
   String cor;
   String km;
   String descricao;
-  String imageUrl;
   bool isFavorite;
+  String estado;
+  LatLng? location;
+  bool isForRent;
 
   Car({
     required this.id,
-    required this.cpf,
+    required this.apelido,
     required this.marca,
     required this.modelo,
     required this.ano,
@@ -28,8 +30,10 @@ class Car with ChangeNotifier {
     required this.cor,
     required this.km,
     required this.descricao,
-    required this.imageUrl,
     this.isFavorite = false,
+    required this.estado,
+    this.location,
+    required this.isForRent,
   });
 
   void _toggleFavorite() {

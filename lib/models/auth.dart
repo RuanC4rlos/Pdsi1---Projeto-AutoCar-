@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import '../exceptions/auth_exception.dart';
 import 'package:flutter/widgets.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 
 class Auth with ChangeNotifier {
@@ -55,13 +54,38 @@ class Auth with ChangeNotifier {
         ),
       );
 
-      _autoLogout();
+      //_autoLogout();
       notifyListeners();
     }
   }
 
+  // Future<void> addUser(String nome, String sobrenome) async {
+  //   try {
+  //     _authData['nome'] = nome;
+  //     _authData['sobrenome'] = sobrenome;
+
+  //     final response = await http.post(
+  //       Uri.parse(
+  //           'https://autocar-92774-default-rtdb.firebaseio.com/nameUser.json?auth=$_token'),
+  //       body: jsonEncode(
+  //         {
+  //           'nome': nome,
+  //           'sobrenome': sobrenome,
+  //         },
+  //       ),
+  //     );
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+  //   } catch (error) {
+  //     print('Erro ao adicionar usuário: $error');
+  //     rethrow;
+  //   }
+  // }
+
   Future<void> signup(String email, String password) async {
     return _authenticate(email, password, 'signUp');
+    // After authentication, add user details to the database
+    // await addUser(nome, sobrenome);
   }
 
   Future<void> login(String email, String password) async {
@@ -92,6 +116,7 @@ class Auth with ChangeNotifier {
   void _autoLogout() {
     _clearLogoutTimer();
     final timeToLogout = _expiryDate?.difference(DateTime.now()).inSeconds;
+
     _logoutTimer = Timer(
       Duration(seconds: timeToLogout ?? 0),
       logout,

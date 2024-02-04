@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "828930740110",
+    "firebase_url": "https://autocar-92774-default-rtdb.firebaseio.com",
+    "project_id": "autocar-92774",
+    "storage_bucket": "autocar-92774.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828930740110:android:bb0f1498c7caa013de5edf",
+        "android_client_info": {
+          "package_name": "com.example.auto_car"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828930740110-rj5vcokh9og2rv4acb7m2b561sj8hoh3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.auto_car",
+            "certificate_hash": "9e20de8de4de9e2f8439ea3f5d95f3151a96752b"
+          }
+        },
+        {
+          "client_id": "828930740110-7dat223r6n9mn99kh36niio2u019k9gs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAavMwUhpk8KTxZ7dqHbHrBf_iyWyPHPxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828930740110-7dat223r6n9mn99kh36niio2u019k9gs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
+import 'package:auto_car/components/app_drawer.dart';
 import 'package:auto_car/components/bottom_navigation_bar.dart';
-import 'package:auto_car/components/product_item.dart';
 import 'package:auto_car/models/car_list.dart';
+import 'package:auto_car/pages/favoritos/product_item_fav.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +18,7 @@ class _FavoritePageState extends State<FavoritePage> {
   Widget build(BuildContext context) {
     final carList = Provider.of<CarList>(context, listen: false);
     final favoriteItems =
-        carList.items.where((carItem) => carItem.isFavorite).toList();
+        carList.allItems.where((carItem) => carItem.isFavorite).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -27,6 +28,7 @@ class _FavoritePageState extends State<FavoritePage> {
             'Favoritos',
             style: TextStyle(color: Colors.white, fontSize: 26),
           )),
+      drawer: const AppDrawer(),
       body: favoriteItems.isEmpty
           ? const Center(
               child: Text('Nenhum item foi adicionado aos favoritos.'))
@@ -35,7 +37,7 @@ class _FavoritePageState extends State<FavoritePage> {
               itemCount: favoriteItems.length,
               itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
                 value: favoriteItems[i],
-                child: const ProductItem(),
+                child: const ProductItemFav(),
               ),
             ),
       bottomNavigationBar: CustomBottomNavigationBar(
