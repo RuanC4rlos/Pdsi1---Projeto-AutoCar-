@@ -324,7 +324,7 @@ class _ProductFormAluguelState extends State<ProductFormAluguel> {
                               : nomeCar,
                           //_formData['apelido']?.toString(),
                           decoration: const InputDecoration(
-                            labelText: 'Titulo do carro',
+                            labelText: 'Titulo',
                           ),
                           textInputAction: TextInputAction.next,
                           onChanged: (apelido) {
@@ -449,7 +449,7 @@ class _ProductFormAluguelState extends State<ProductFormAluguel> {
                       TextFormField(
                         initialValue: _formData['preco']?.toString(),
                         decoration: const InputDecoration(
-                          labelText: 'Preço',
+                          labelText: 'Preço da diaria',
                         ),
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.next,

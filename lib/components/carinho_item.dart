@@ -1,6 +1,7 @@
 import 'package:auto_car/models/carrinho.dart';
 import 'package:auto_car/models/carrinho_item.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 // ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
@@ -56,8 +57,11 @@ class CarrinhoItemWidget extends StatelessWidget {
           children: [
             ListTile(
               title: Text('${cartItem.marca}  ${cartItem.modelo}'),
-              subtitle:
-                  Text('Total: R\$ ${cartItem.price * cartItem.quantity},'),
+              subtitle: Text(
+                'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(cartItem.price * cartItem.quantity)}'
+                //'Total: R\$ ${cartItem.price * cartItem.quantity}
+                ,
+              ),
               trailing: Text('${cartItem.quantity}x'),
             ),
             const SizedBox(height: 20), // Espaço entre as imagens

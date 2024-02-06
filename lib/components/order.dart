@@ -28,7 +28,9 @@ class _OrderWidgetState extends State<OrderWidget> {
           child: Column(
             children: [
               ListTile(
-                title: Text('R\$ ${widget.order.total..toStringAsFixed(2)}'),
+                title: Text(
+                    'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(widget.order.total)}'),
+                //'R\$ ${widget.order.total..toStringAsFixed(2)}'),
                 subtitle: Text(
                   DateFormat('dd/MM/yyy hh:mm').format(widget.order.date),
                 ),
@@ -63,12 +65,13 @@ class _OrderWidgetState extends State<OrderWidget> {
                               ),
                             ),
                             Text(
-                              '${product.quantity}x    R\$ ${product.price}',
+                              '${product.quantity}x   R\$ ${NumberFormat("#,##0.00", "pt_BR").format(widget.order.total)}',
+                              // '${product.quantity}x    R\$ ${product.price}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey,
                               ),
-                            )
+                            ),
                           ],
                         );
                       },

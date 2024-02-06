@@ -539,17 +539,6 @@ class CarList with ChangeNotifier {
       preco: data['preco'] as double,
       horario: data['data'],
     );
-    // final product = Reserva(
-    //   id: hasId ? data['id'] as String : Random().nextDouble().toString(),
-    //   marca: data['marca'] != null ? data['marca'] as String : '',
-    //   modelo: data['modelo'] != null ? data['modelo'] as String : '',
-    //   nome: data['nome'] != null ? data['nome'] as String : '',
-    //   cpf: data['cpf'] != null ? data['cpf'] as String : '',
-    //   contato: data['contato'] != null ? data['contato'] as String : '',
-    //   endereco: data['endereco'] != null ? data['endereco'] as String : '',
-    //   preco: data['preco'] != null ? data['preco'] as double : 0.0,
-    //   horario: data['data'],
-    // );
 
     await http.post(
       Uri.parse('${Constants.RESERVA_BASE_URL}/$_userId.json?auth=$_token'),
@@ -571,7 +560,8 @@ class CarList with ChangeNotifier {
   Future<void> loadReserva() async {
     _itemsReservados = List.from(_itemsReservados);
     _itemsReservados.clear();
-
+    _horariosReservados = List.from(_horariosReservados);
+    _horariosReservados.clear();
     final response = await http.get(
         Uri.parse('${Constants.RESERVA_BASE_URL}/$_userId.json?auth=$_token'));
     if (response.body == 'null') return;
@@ -593,14 +583,13 @@ class CarList with ChangeNotifier {
           horario: productData['data'] ?? '',
         ),
       );
-      //    _horariosReservados.add(productData['data']);
       _horariosReservados = List.from(_horariosReservados);
       _horariosReservados.add(productData['data']);
     });
     notifyListeners();
   }
 
-  Future<void> removeReserva(Reserva product) async {
+  Future<void> removeReserva(Reserva product, String usuarioId) async {
     int index = _itemsReservados.indexWhere((p) => p.id == product.id);
 
     if (index >= 0) {
@@ -610,7 +599,7 @@ class CarList with ChangeNotifier {
 
       final response = await http.delete(
         Uri.parse(
-            '${Constants.RESERVA_BASE_URL}/$userId/${product.id}.json?auth=$_token'),
+            '${Constants.RESERVA_BASE_URL}/$usuarioId/${product.id}.json?auth=$_token'),
       );
       if (response.statusCode >= 400) {
         _itemsReservados.insert(index, product);
@@ -621,4 +610,38 @@ class CarList with ChangeNotifier {
       }
     }
   }
+
+  // Future<void> removeReserva(Reserva product, String usuarioId) async {
+  //   int index = _itemsReservados.indexWhere((p) => p.id == product.id);
+
+  //   if (index >= 0) {
+  //     final product = _itemsReservados[index];
+  //     _itemsReservados.remove(product);
+  //     notifyListeners();
+
+  //     // Encontre o índice da reserva correspondente em _horariosReservados
+  //     int horarioIndex = _horariosReservados.indexWhere((horario) =>
+  //         horario['inicio'] == product.horario['inicio'] &&
+  //         horario['final'] == product.horario['final']);
+
+  //     // Remova a reserva de _horariosReservados
+  //     if (horarioIndex >= 0) {
+  //       _horariosReservados.removeAt(horarioIndex);
+  //     }
+
+  //     final response = await http.delete(
+  //       Uri.parse(
+  //           '${Constants.RESERVA_BASE_URL}/$usuarioId/${product.id}.json?auth=$_token'),
+  //     );
+  //     if (response.statusCode >= 400) {
+  //       _itemsReservados.insert(index, product);
+  //       _horariosReservados.insert(horarioIndex,
+  //           product.horario); // Reinsira a reserva se a remoção falhar
+  //       notifyListeners();
+  //       throw HttpException(
+  //           msg: 'Não foi possivel excluir o produto.',
+  //           statusCode: response.statusCode);
+  //     }
+  //   }
+  // }
 }

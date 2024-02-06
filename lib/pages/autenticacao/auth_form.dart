@@ -120,7 +120,6 @@ class _AuthFormState extends State<AuthForm>
 
     _formKey.currentState?.save();
     Auth auth = Provider.of(context, listen: false);
-
     try {
       if (_isLogin()) {
         // Login
@@ -142,6 +141,8 @@ class _AuthFormState extends State<AuthForm>
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
     } catch (error) {
+      // ignore: avoid_print
+      print('Error: $error');
       _showErrorDialog('Ocorreu um erro inesperado!');
     }
 

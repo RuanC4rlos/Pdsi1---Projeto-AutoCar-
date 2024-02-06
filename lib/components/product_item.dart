@@ -339,30 +339,14 @@ class _ProductItemState extends State<ProductItem> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           product.isForRent == true
-                              ? Row(
-                                  children: [
-                                    Text(
-                                      product.marca,
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 32, 46,
-                                              85) //Colors.blue.shade900, // Altera a cor do texto
-                                          ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 35),
-                                      child: Text(
-                                        'Disponivel',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w900,
-                                          color: Color.fromARGB(255, 3, 250,
-                                              11), //Colors.blue.shade900, // Altera a cor do texto
-                                        ),
+                              ? Text(
+                                  product.marca,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 32, 46,
+                                          85) //Colors.blue.shade900, // Altera a cor do texto
                                       ),
-                                    ),
-                                  ],
                                 )
                               : Text(
                                   product.marca,
